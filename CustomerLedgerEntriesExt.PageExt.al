@@ -28,35 +28,42 @@ pageextension 50110 "Customer Ledger Entries Ext" extends "Customer Ledger Entri
                 SharedLayout = false;
                 layout
                 {
-                    movefirst(Control1; NumberOfDaysExpired);
-                    moveafter(NumberOfDaysExpired; "Due After")
+                    movefirst(Control1; NumberOfDaysExpired)
+                    moveafter(NumberOfDaysExpired; "Due date")
                 }
             }
         }
     }
+
     var
+        ThresholdSetup: Record "Threshold Setup";
         NumberOfDaysExpired: Integer;
         DaysExpiredStyle: Text;
-        ThresholdSetup: Record "Threshold Setup";
 
-    trigger OnOpenPage()    
+    trigger OnOpenPage()
     begin
-        if not ThresholdSetup.Get() then begin
+        clear(ThresholdSetup);
+        if not ThresholdSetup.Get('') then begin
+
             ShowThresholdSetupNotification();
             CurrPage.Update();
+
         end;
-        
+
     end;
 
     trigger OnAfterGetRecord()
     begin
 
-        NumberOfDaysExpired := rec.GetNumberOfDaysExpired();
+        NumberOfDaysExpired := Rec.GetNumberOfDaysExpired();
 
         case NumberOfDaysExpired of
-            ThresholdSetup."Threshold 1 Value" .. ThresholdSetup."Threshold 2 Value": DaysExpiredStyle := format(ThresholdSetup."Threshold 1 Style");
-            ThresholdSetup."Threshold 2 Value" .. 99999: DaysExpiredStyle := format(ThresholdSetup."Threshold 2 Style");
-            else DaysExpiredStyle := 'None';
+            ThresholdSetup."Threshold 1 Value" .. ThresholdSetup."Threshold 2 Value":
+                DaysExpiredStyle := format(ThresholdSetup."Threshold 1 Style");
+            ThresholdSetup."Threshold 2 Value" .. 99999:
+                DaysExpiredStyle := format(ThresholdSetup."Threshold 2 Style");
+            else
+                DaysExpiredStyle := 'None';
         end;
 
     end;
@@ -64,12 +71,12 @@ pageextension 50110 "Customer Ledger Entries Ext" extends "Customer Ledger Entri
     local procedure ShowThresholdSetupNotification()
     var
         ThresholdSetupNotification: Notification;
-        ThresholdSetupNotificationMessage: Label 'You need to run the Threshold Setup:';
-        ThresholdSetupNotificationActionMessage: Label 'Click here to run the ThresholdSetup'
+        ThresholdSetupNotificationMsg: Label 'You need to run the Threshold Setup:';
+        ThresholdSetupNotificationActionMsg: Label 'Click here to run the ThresholdSetup';
     begin
-        
-        ThresholdSetupNotification.Message(ThresholdSetupNotificationMessage);
-        ThresholdSetupNotification.AddAction(ThresholdSetupNotificationActionMessage, Codeunit::"Threshold Setup Management", 'RunThresholdSetup');
+
+        ThresholdSetupNotification.Message(ThresholdSetupNotificationMsg);
+        ThresholdSetupNotification.AddAction(ThresholdSetupNotificationActionMsg, Codeunit::"Threshold Setup Management", 'RunThresholdSetup');
         ThresholdSetupNotification.Send();
     end;
 
