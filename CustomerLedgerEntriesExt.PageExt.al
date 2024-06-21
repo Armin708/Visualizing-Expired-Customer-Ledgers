@@ -26,7 +26,6 @@ pageextension 50110 "Customer Ledger Entries Ext" extends "Customer Ledger Entri
                 OrderBy = ascending("Due Date");
                 Filters = where(Open = const(true));
                 SharedLayout = false;
-
                 layout
                 {
                     movefirst(Control1; NumberOfDaysExpired);
